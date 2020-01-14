@@ -1,3 +1,7 @@
+from IPython.display import display, Markdown, clear_output
+import numpy as np
+
+
 class Card:
     def __init__(self, question, answer):
         self.question = question
@@ -54,11 +58,19 @@ def read_cards(path):
     return cards
 
 
-if __name__ == '__main__':
-    cards = read_cards('./cards/sample.md')
-    print(len(cards))
-    # print("------------------")
-    # print(cards[1].question)
-    # print("------------------")
-    # print(cards[1].answer)
-    # print("------------------")
+def learn(cards, randomize=False, cls_after_question=False, cls_after_answer=True):
+    if randomize:
+        indices = np.random.permutation(len(cards))
+    else:
+        indices = range(len(cards))
+    for i in indices:
+        card = cards[i]
+        display(Markdown(card.question))
+        input()
+        if cls_after_question:
+            clear_output()
+        display(Markdown(card.answer))
+        input()
+        if cls_after_answer:
+            clear_output()
+    
