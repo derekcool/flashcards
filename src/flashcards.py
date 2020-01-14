@@ -58,17 +58,25 @@ def read_cards(path):
     return cards
 
 
-def learn(cards, randomize=False, cls_after_question=False, cls_after_answer=True):
+def learn(cards, 
+          randomize=False, 
+          show_labels=False,
+          cls_after_question=False, 
+          cls_after_answer=True):
     if randomize:
         indices = np.random.permutation(len(cards))
     else:
         indices = range(len(cards))
     for i in indices:
         card = cards[i]
+        if show_labels:
+            print("Question:")
         display(Markdown(card.question))
         input()
         if cls_after_question:
             clear_output()
+        if show_labels:
+            print("Answer:")
         display(Markdown(card.answer))
         input()
         if cls_after_answer:
