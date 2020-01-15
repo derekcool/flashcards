@@ -1,5 +1,6 @@
 from IPython.display import display, Markdown, clear_output
 import numpy as np
+import glob
 
 
 class Card:
@@ -23,12 +24,12 @@ class Card:
         return Card(''.join(q_lines), ''.join(a_lines))
 
 
-
-def read_cards(path):
+def read_cards_from_file(path, cards=None):
     state = None
     q = []
     a = []
-    cards = []
+    if cards is None:
+        cards = []
     with open(path, 'r') as f:
         for line in f.readlines():
             token = line.strip()
@@ -55,6 +56,17 @@ def read_cards(path):
                     a.append(line)
         if len(q) > 0 or len(a) > 0:
             cards.append(Card.from_lines(q, a))
+    return cards
+
+
+def read_cards_from_directory(path, cards=None):
+    if cards is None:
+        cards = []
+    filepath = "{}/*.md".format(path)
+    print(filepath)
+    for filename in glob.glob(filepath):
+        print(filename)
+        read_cards_from_file(filename, cards)
     return cards
 
 
