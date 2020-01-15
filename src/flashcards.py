@@ -62,10 +62,7 @@ def read_cards_from_file(path, cards=None):
 def read_cards_from_directory(path, cards=None):
     if cards is None:
         cards = []
-    filepath = "{}/*.md".format(path)
-    print(filepath)
-    for filename in glob.glob(filepath):
-        print(filename)
+    for filename in glob.glob("{}/*.md".format(path)):
         read_cards_from_file(filename, cards)
     return cards
 
@@ -93,4 +90,4 @@ def learn(cards,
         input()
         if cls_after_answer:
             clear_output()
-    
+
