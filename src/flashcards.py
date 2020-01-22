@@ -70,16 +70,25 @@ def read_cards_from_directory(path, cards=None):
 def learn(cards, 
           randomize=False, 
           show_labels=False,
+          show_counter=True,
+          max_questions = -1,
           cls_after_question=False, 
           cls_after_answer=True):
     if randomize:
         indices = np.random.permutation(len(cards))
     else:
         indices = range(len(cards))
+    if max_questions > 0:
+        indices = indices[:max_questions]
+    counter = 1
+    size = len(indices)
     for i in indices:
         card = cards[i]
         if show_labels:
-            print("Question:")
+            if show_counter:
+                print("Question ({}/{}):".format(counter, size))
+            else:
+                print("Question:")
         display(Markdown(card.question))
         input()
         if cls_after_question:
@@ -90,4 +99,5 @@ def learn(cards,
         input()
         if cls_after_answer:
             clear_output()
+        counter += 1
 
