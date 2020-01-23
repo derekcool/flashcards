@@ -118,7 +118,6 @@ def learn(cards,
             break
         else:
             if randomize:
-                indices = random.shuffle(more_reviews)
-            else:
-                indices = more_reviews
+                random.shuffle(more_reviews)
+            indices = more_reviews
 
