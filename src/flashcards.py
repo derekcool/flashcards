@@ -1,6 +1,7 @@
 from IPython.display import display, Markdown, clear_output
 import numpy as np
 import glob
+import random
 
 
 class Card:
@@ -71,33 +72,53 @@ def learn(cards,
           randomize=False, 
           show_labels=False,
           show_counter=True,
-          max_questions = -1,
+          max_questions=-1,
+          review_failed_ones=False,
           cls_after_question=False, 
           cls_after_answer=True):
+    if review_failed_ones:
+        print("---------------------------------------------------------------")
+        print("Type anything in the textbox and return to indicate you need to more review that item more.")
+        print("---------------------------------------------------------------")
     if randomize:
         indices = np.random.permutation(len(cards))
     else:
         indices = range(len(cards))
     if max_questions > 0:
         indices = indices[:max_questions]
-    counter = 1
-    size = len(indices)
-    for i in indices:
-        card = cards[i]
-        if show_labels:
-            if show_counter:
-                print("Question ({}/{}):".format(counter, size))
+    while True:
+        more_reviews = []
+        counter = 1
+        size = len(indices)
+        for i in indices:
+            card = cards[i]
+            if show_labels:
+                if show_counter:
+                    print("Question ({}/{}):".format(counter, size))
+                else:
+                    print("Question:")
+            display(Markdown(card.question))
+            need_review = False
+            if input() != '':
+                need_review = True
+
+            if cls_after_question:
+                clear_output()
+            if show_labels:
+                print("Answer:")
+            display(Markdown(card.answer))
+            if input() != '':
+                need_review = True
+            if cls_after_answer:
+                clear_output()
+            counter += 1
+            if need_review:
+                more_reviews.append(i)
+        if len(more_reviews) == 0:
+            break
+        else:
+            if randomize:
+                indices = random.shuffle(more_reviews)
             else:
-                print("Question:")
-        display(Markdown(card.question))
-        input()
-        if cls_after_question:
-            clear_output()
-        if show_labels:
-            print("Answer:")
-        display(Markdown(card.answer))
-        input()
-        if cls_after_answer:
-            clear_output()
-        counter += 1
+                indices = more_reviews
 
