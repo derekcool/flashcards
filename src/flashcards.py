@@ -5,12 +5,13 @@ import random
 
 
 class Card:
-    def __init__(self, question, answer):
+    def __init__(self, question, answer, source=None):
         self.question = question
         self.answer = answer
+        self.source = source
 
     @staticmethod
-    def from_lines(q_lines, a_lines):
+    def from_lines(q_lines, a_lines, source=None):
         # remove the trimming lines
         for i in reversed(range(len(q_lines))):
             if q_lines[i].strip() == '':
@@ -22,7 +23,7 @@ class Card:
                 a_lines.pop(i)
             else:
                 break
-        return Card(''.join(q_lines), ''.join(a_lines))
+        return Card(''.join(q_lines), ''.join(a_lines), source)
 
 
 def read_cards_from_file(path, cards=None):
@@ -46,7 +47,7 @@ def read_cards_from_file(path, cards=None):
                     q.append(line)
             elif state == 'a':
                 if token == '---' or token == 'Q:':
-                    cards.append(Card.from_lines(q, a))
+                    cards.append(Card.from_lines(q, a, path))
                     q = []
                     a = []
                     if token == '---':
@@ -56,7 +57,7 @@ def read_cards_from_file(path, cards=None):
                 else:
                     a.append(line)
         if len(q) > 0 or len(a) > 0:
-            cards.append(Card.from_lines(q, a))
+            cards.append(Card.from_lines(q, a, path))
     return cards
 
 
@@ -68,17 +69,37 @@ def read_cards_from_directory(path, cards=None):
     return cards
 
 
+def write_cards(cards, prefix, path=None):
+    for i, card in enumerate(cards):
+        filename = "{}_{}.md".format(prefix, i + 1)
+        if path is not None:
+            filename = "{}/{}".format(path, filename)
+        print(filename)
+        with open(filename, 'w') as f:
+            f.write('Q:  \n')
+            f.write(card.question)
+            f.write('\n')
+            f.write('A:  \n')
+            f.write(card.answer)
+
+
+def split_deck(deck_filename, card_prefix, path=None):
+    cards = read_cards_from_file(deck_filename)
+    write_cards(cards, prefix=card_prefix, path=path)
+
+
 def learn(cards, 
           randomize=False, 
           show_labels=False,
           show_counter=True,
           max_questions=-1,
           review_failed_ones=False,
+          print_failed_card_source=False,
           cls_after_question=False, 
           cls_after_answer=True):
-    if review_failed_ones:
+    if review_failed_ones or print_failed_card_source:
         print("---------------------------------------------------------------")
-        print("Type anything in the textbox and return to indicate you need to more review that item more.")
+        print("Type anything in the textbox and return to indicate you need to review the card more.")
         print("---------------------------------------------------------------")
     if randomize:
         indices = np.random.permutation(len(cards))
@@ -117,7 +138,18 @@ def learn(cards,
         if len(more_reviews) == 0:
             break
         else:
-            if randomize:
-                random.shuffle(more_reviews)
-            indices = more_reviews
+            if review_failed_ones:
+                if randomize:
+                    random.shuffle(more_reviews)
+                indices = more_reviews
+            elif print_failed_card_source:
+                print("---------------------------------")
+                print("Cards that need more review:")
+                print("---------------------------------")
+                for i in more_reviews:
+                    print(cards[i].source)
+                break
+            else:
+                break
+
 
