@@ -6,13 +6,13 @@ import shutil
 
 
 class Card:
-    def __init__(self, question, answer, source=None):
+    def __init__(self, question, answer, src=None):
         self.question = question
         self.answer = answer
-        self.source = source
+        self.src = src
 
     @staticmethod
-    def from_lines(q_lines, a_lines, source=None):
+    def from_lines(q_lines, a_lines, src=None):
         # remove the trimming lines
         for i in reversed(range(len(q_lines))):
             if q_lines[i].strip() == '':
@@ -24,7 +24,7 @@ class Card:
                 a_lines.pop(i)
             else:
                 break
-        return Card(''.join(q_lines), ''.join(a_lines), source)
+        return Card(''.join(q_lines), ''.join(a_lines), src)
 
 
 def read_cards_from_file(path, cards=None):
@@ -164,11 +164,12 @@ def learn(cards,
         print("---------------------------------")
         print("PASSED:")
         for i in passed_cards:
-            print(" ", cards[i].source)
+            print(" ", cards[i].src)
         print()
         print("FAILED:")
         for i in failed_cards:
-            print(" ", cards[i].source)
+            print(" ", cards[i].src)
+    return passed_cards, failed_cards
 
 
 def lietner_learning(root_path, num_boxes, current_box, max_questions, review_failed_ones=True, verbose=False):
@@ -185,21 +186,19 @@ def lietner_learning(root_path, num_boxes, current_box, max_questions, review_fa
                            print_report_card=True,
                            cls_after_question=False,
                            cls_after_answer=True)
-    print("passed={}".format(passed))
-    print("failed={}".format(failed))
     if current_box < num_boxes:
         target_path = "{}/box{}/".format(root_path, current_box+1)
-        for src in passed:
-            shutil.move(src, target_path)
+        for i in passed:
+            shutil.move(cards[i].src, target_path)
             if verbose:
-                print("moved {} to {}".format(src, target_path))
+                print("moved {} to {}".format(cards[i].src, target_path))
     if current_box > 1:
-        target_path = "{}/box{}/".format(root_path, current_box-1)
-        for src in failed:
-            shutil.move(src, target_path)
+        target_path = "{}/box1/".format(root_path)
+        for i in failed:
+            shutil.move(cards[i].src, target_path)
             if verbose:
-                print("moved {} to {}".format(src, target_path))
+                print("moved {} to {}".format(cards[i].src, target_path))
 
 
 if __name__ == '__main__':
-    lietner_learning('/Users/dgu/Projects/learning/flashcards/test', 3, 1, -1, verbose=True)
+    lietner_learning('/Users/dgu/Projects/learning/flashcards/test', 3, 3, 2, verbose=True)
