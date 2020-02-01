@@ -9,7 +9,6 @@ class Card:
         self.question = question
         self.answer = answer
         self.source = source
-        self.passed = False
 
     @staticmethod
     def from_lines(q_lines, a_lines, source=None):
@@ -25,9 +24,6 @@ class Card:
             else:
                 break
         return Card(''.join(q_lines), ''.join(a_lines), source)
-
-    def reset(self):
-        self.passed = False
 
 
 def read_cards_from_file(path, cards=None):
@@ -101,8 +97,6 @@ def learn(cards,
           print_report_card=False,
           cls_after_question=False, 
           cls_after_answer=True):
-    for card in cards:
-        card.reset()
     if review_failed_ones or print_report_card:
         print("---------------------------------------------------------------")
         print("Type anything in the textbox and return to indicate you need to review the card more.")
@@ -113,6 +107,11 @@ def learn(cards,
         indices = range(len(cards))
     if max_questions > 0:
         indices = indices[:max_questions]
+    original_indices = indices
+    original_indices.sort()
+    passed_cards = []
+    failed_cards = []
+    attempt = 1
     while True:
         more_reviews = []
         counter = 1
@@ -141,8 +140,11 @@ def learn(cards,
             counter += 1
             if need_review:
                 more_reviews.append(i)
-            else:
-                card.passed = True
+            if attempt == 1:
+                if need_review:
+                    failed_cards.append(i)
+                else:
+                    passed_cards.append(i)
         if len(more_reviews) == 0:
             break
         else:
@@ -150,21 +152,19 @@ def learn(cards,
                 if randomize:
                     random.shuffle(more_reviews)
                 indices = more_reviews
-            elif print_report_card:
-                print("---------------------------------")
-                print("Report Card:")
-                print("---------------------------------")
-                print("PASSED:")
-                for card in cards:
-                    if card.passed:
-                        print(" ", card.source)
-                print()
-                print("FAILED:")
-                for card in cards:
-                    if card.passed is False:
-                        print(" ", card.source)
-                break
             else:
                 break
-
-
+        attempt += 1
+    if print_report_card:
+        passed_cards.sort()
+        failed_cards.sort()
+        print("---------------------------------")
+        print("Report Card:")
+        print("---------------------------------")
+        print("PASSED:")
+        for i in passed_cards:
+            print(" ", cards[i].source)
+        print()
+        print("FAILED:")
+        for i in failed_cards:
+            print(" ", cards[i].source)
