@@ -2,6 +2,7 @@ from IPython.display import display, Markdown, clear_output
 import numpy as np
 import glob
 import random
+import shutil
 
 
 class Card:
@@ -99,7 +100,7 @@ def learn(cards,
           max_questions=-1,
           review_failed_ones=False,
           print_report_card=False,
-          cls_after_question=False, 
+          cls_after_question=False,
           cls_after_answer=True):
     for card in cards:
         card.reset()
@@ -168,3 +169,35 @@ def learn(cards,
                 break
 
 
+def lietner_learning(root_path, num_boxes, current_box, max_questions, review_failed_ones=True, verbose=False):
+    path = "{}/box{}".format(root_path, current_box)
+    cards = read_cards_from_directory(path)
+    if len(cards) == 0:
+        raise Exception("No cards in {}".format(path))
+    passed, failed = learn(cards,
+                           randomize=True,
+                           show_labels=True,
+                           show_counter=True,
+                           max_questions=max_questions,
+                           review_failed_ones=review_failed_ones,
+                           print_report_card=True,
+                           cls_after_question=False,
+                           cls_after_answer=True)
+    print("passed={}".format(passed))
+    print("failed={}".format(failed))
+    if current_box < num_boxes:
+        target_path = "{}/box{}/".format(root_path, current_box+1)
+        for src in passed:
+            shutil.move(src, target_path)
+            if verbose:
+                print("moved {} to {}".format(src, target_path))
+    if current_box > 1:
+        target_path = "{}/box{}/".format(root_path, current_box-1)
+        for src in failed:
+            shutil.move(src, target_path)
+            if verbose:
+                print("moved {} to {}".format(src, target_path))
+
+
+if __name__ == '__main__':
+    lietner_learning('/Users/dgu/Projects/learning/flashcards/test', 3, 1, -1, verbose=True)
