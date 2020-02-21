@@ -102,7 +102,7 @@ def learn(cards,
     if randomize:
         indices = np.random.permutation(len(cards))
     else:
-        indices = range(len(cards))
+        indices = np.arange(len(cards))
     if max_questions > 0:
         indices = indices[:max_questions]
     original_indices = indices
