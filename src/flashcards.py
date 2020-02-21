@@ -93,15 +93,12 @@ def learn(cards,
           randomize=False, 
           show_labels=False,
           show_counter=True,
+          show_filename=False,
           max_questions=-1,
           review_failed_ones=False,
           print_report_card=False,
           cls_after_question=False,
           cls_after_answer=True):
-    if review_failed_ones or print_report_card:
-        print("---------------------------------------------------------------")
-        print("Type anything in the textbox and return to indicate you need to review the card more.")
-        print("---------------------------------------------------------------")
     if randomize:
         indices = np.random.permutation(len(cards))
     else:
@@ -113,12 +110,19 @@ def learn(cards,
     passed_cards = []
     failed_cards = []
     attempt = 1
+
+    if review_failed_ones or print_report_card:
+        print("---------------------------------------------------------------")
+        print("Type anything in the textbox and return to indicate you need to review the card more.")
+        print("---------------------------------------------------------------")
     while True:
         more_reviews = []
         counter = 1
         size = len(indices)
         for i in indices:
             card = cards[i]
+            if show_filename:
+                print("file: {}".format(card.src))
             if show_labels:
                 if show_counter:
                     print("Question ({}/{}):".format(counter, size))
@@ -172,7 +176,7 @@ def learn(cards,
     return passed_cards, failed_cards
 
 
-def lietner_learning(root_path, num_boxes, current_box, max_questions, review_failed_ones=True, verbose=False):
+def lietner_learning(root_path, num_boxes, current_box, max_questions, review_failed_ones=True, show_filename=False, verbose=False):
     path = "{}/box{}".format(root_path, current_box)
     cards = read_cards_from_directory(path)
     if len(cards) == 0:
@@ -181,6 +185,7 @@ def lietner_learning(root_path, num_boxes, current_box, max_questions, review_fa
                            randomize=True,
                            show_labels=True,
                            show_counter=True,
+                           show_filename=show_filename,
                            max_questions=max_questions,
                            review_failed_ones=review_failed_ones,
                            print_report_card=True,
