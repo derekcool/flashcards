@@ -33,13 +33,13 @@ def read_cards_from_file(path, cards=None):
     a = []
     if cards is None:
         cards = []
-    with open(path, 'r') as f:
+    with open(path, 'r', encoding='utf-8') as f:
         for line in f.readlines():
             token = line.strip()
             if state is None:
-                if token == 'Q:':
+                if token == "Q:" or token == "﻿Q:":
                     state = 'q'
-                elif token == 'A:':
+                elif token == 'A:' or token == "A:":
                     raise Exception('Cannot have answer without the question.')
             elif state == 'q':
                 if token == 'A:':
